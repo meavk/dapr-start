@@ -1,0 +1,48 @@
+POST http://localhost:3500/v1.0/state/statestore
+
+[
+    {
+        "key": "team",
+        "value": "Delphinus"
+    }
+]
+
+###
+
+GET http://localhost:3500/v1.0/state/statestore/team
+
+###
+
+DELETE http://localhost:3500/v1.0/state/statestore/team
+
+###
+
+POST http://localhost:7001/orders
+content-type: application/json
+
+{
+    "orderId" : 333
+}
+
+###
+
+POST http://localhost:3501/orders
+content-type: application/json
+dapr-app-id: order-processor
+
+{
+    "orderId" : 445
+}
+
+###
+
+GET http://20.231.234.39/orders/133
+
+###
+POST http://20.231.234.39/orders
+content-type: application/json
+
+{
+    "OrderId": 135,
+    "CustomerName": "Linux"
+}

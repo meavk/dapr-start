@@ -1,0 +1,45 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: orderapp
+  labels:
+    app: order
+spec:
+  selector:
+    app: order
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+  type: LoadBalancer
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orderapp
+  labels:
+    app: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "orderapp"
+        dapr.io/app-port: "3000"
+    spec:
+      containers:
+      - name: order
+        image: avkcontainerregistry.azurecr.io/orderprocessor:v2
+        env:
+        - name: ASPNETCORE_URLS
+          value: "http://*:3000"
+        ports:
+        - containerPort: 3000
+        imagePullPolicy: Always
