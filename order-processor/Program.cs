@@ -1,9 +1,5 @@
 using Dapr.Client;
 
-using System.Text.Json.Serialization;
-
-using Tracing;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
