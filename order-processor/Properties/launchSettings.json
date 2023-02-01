@@ -3,7 +3,7 @@
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/orders",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/health",
       "publishAllPorts": true
     }
   },

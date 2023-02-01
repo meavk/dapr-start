@@ -2,21 +2,32 @@ using Dapr.Client;
 
 using System.Text.Json.Serialization;
 
+using Tracing;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Logging.ClearProviders();
+builder.Services.AddW3CLogging(o => {
+    o.LoggingFields = Microsoft.AspNetCore.HttpLogging.W3CLoggingFields.All;
+});
+builder.Logging.AddJsonConsole(o => o.IncludeScopes = true);
 
 string DAPR_STORE_NAME = "statestore";
 
 var app = builder.Build();
 
 using var client = new DaprClientBuilder().Build();
+var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
+var logger = loggerFactory.CreateLogger("order-processor");
 
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
 }
 
-app.MapGet("/health", async (HttpContext context, int id) =>
+app.MapGet("/health", async (HttpContext context) =>
 {
+    logger.LogInformation("Running health check.");
     await context.Response.WriteAsync("Running");
 });
 
