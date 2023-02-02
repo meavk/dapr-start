@@ -1,45 +1,45 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: orderapp
+  name: checkoutapp
   labels:
-    app: order
+    app: checkout
 spec:
   selector:
-    app: order
+    app: checkout
   ports:
   - protocol: TCP
-    port: 8000
-    targetPort: 3000
+    port: 8001
+    targetPort: 3001
   type: LoadBalancer
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: orderapp
+  name: checkoutapp
   labels:
-    app: order
+    app: checkout
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order
+      app: checkout
   template:
     metadata:
       labels:
-        app: order
+        app: checkout
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/app-id: "orderapp"
-        dapr.io/app-port: "3000"
+        dapr.io/app-id: "checkoutapp"
+        dapr.io/app-port: "3001"
     spec:
       containers:
-      - name: order
-        image: avkcontainerregistry.azurecr.io/orderprocessor:v4
+      - name: checkout
+        image: avkcontainerregistry.azurecr.io/ordercheckout:v4
         env:
         - name: ASPNETCORE_URLS
-          value: "http://*:3000"
+          value: "http://*:3001"
         ports:
-        - containerPort: 3000
+        - containerPort: 3001
         imagePullPolicy: Always

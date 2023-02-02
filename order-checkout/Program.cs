@@ -10,13 +10,14 @@ builder.Services.AddW3CLogging(o => {
 });
 builder.Logging.AddJsonConsole(o => o.IncludeScopes = true);
 
-string DAPR_STORE_NAME = "statestore";
+string ORDER_PROCESSOR_NAME = "orderapp";
+
 
 var app = builder.Build();
 
 using var client = new DaprClientBuilder().Build();
 var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
-var logger = loggerFactory.CreateLogger("order-processor");
+var logger = loggerFactory.CreateLogger("order-checkout");
 
 if (app.Environment.IsDevelopment())
 {
@@ -29,16 +30,17 @@ app.MapGet("/health", async (HttpContext context) =>
     await context.Response.WriteAsync("Running");
 });
 
-app.MapGet("/orders/{id}", async (HttpContext context, string id) =>
+app.MapPost("/checkout", async (HttpContext context, List<int> items) =>
 {
-    var order = await client.GetStateAsync<Order>(DAPR_STORE_NAME, id);
-    await context.Response.WriteAsJsonAsync(order);
-});
+    var order = new Order
+    {
+        OrderId = Guid.NewGuid().ToString(),
+        Items = items,
+        CustomerName = "Same Customer"
+    };
 
-app.MapPost("/orders", async (HttpContext context, Order order) =>
-{
-    await client.SaveStateAsync(DAPR_STORE_NAME, order.OrderId, order);
-    await context.Response.WriteAsJsonAsync(order);
+    var result = await client.InvokeMethodAsync<Order, Order>(ORDER_PROCESSOR_NAME, "orders", order);
+    await context.Response.WriteAsJsonAsync(result);
 });
 
 await app.RunAsync();
