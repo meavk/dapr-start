@@ -1,48 +1,28 @@
-POST http://localhost:3500/v1.0/state/statestore
-
-[
-    {
-        "key": "team",
-        "value": "Delphinus"
-    }
-]
+###
+# GET health
+GET http://20.124.67.46:8001/health
 
 ###
-
-GET http://localhost:3500/v1.0/state/statestore/team
-
-###
-
-DELETE http://localhost:3500/v1.0/state/statestore/team
+GET http://20.231.234.39:8000/health
 
 ###
+# POST checkout
+POST http://20.124.67.46:8001/checkout
+content-type: application/json
 
-POST http://localhost:7001/orders
+[10,20,30]
+
+###
+# POST order
+POST http://20.231.234.39:8000/orders
 content-type: application/json
 
 {
-    "orderId" : 333
+    "OrderId": "135",
+    "CustomerName": "Linux",
+    "Items":[]
 }
 
 ###
-
-POST http://localhost:3501/orders
-content-type: application/json
-dapr-app-id: order-processor
-
-{
-    "orderId" : 445
-}
-
-###
-
-GET http://20.231.234.39/orders/133
-
-###
-POST http://20.231.234.39/orders
-content-type: application/json
-
-{
-    "OrderId": 135,
-    "CustomerName": "Linux"
-}
+# GET order
+GET http://20.231.234.39:8000/orders/eb0fe739-df16-4210-a075-a4a59ad6a8db
