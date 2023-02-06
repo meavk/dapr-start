@@ -1,0 +1,371 @@
+global:
+  logLevel: info
+  splunk:
+    hec:
+      host: prd-p-wicol.splunkcloud.com
+      port: 8088
+      token: 6befecc5-c98d-4f3f-b174-b31068250c5a
+      protocol:
+      endpoint:
+      fullUrl:
+      indexName: logs
+      insecureSSL: true
+      clientCert:
+      clientKey:
+      caFile:
+      indexRouting:
+      consume_chunk_on_4xx_errors:
+  kubernetes:
+    clusterName: "cluster_name"
+  prometheus_enabled:
+  monitoring_agent_enabled:
+  monitoring_agent_index_name:
+  monitoring_agent_bind_address:
+  metrics:
+    service:
+      enabled: true
+      headless: true
+
+  serviceMonitor:
+    enabled: false
+    metricsPort: 24231
+    interval: ""
+    scrapeTimeout: "10s"
+    additionalLabels: {}
+
+splunk-kubernetes-logging:
+  enabled: true
+  logLevel:
+  namespace:
+
+  fluentd:
+    path: /var/log/containers/*.log
+    exclude_path:
+
+  containers:
+    path: /var/log
+    pathDest: /var/lib/docker/containers
+    logFormatType: cri
+    logFormat:
+    refreshInterval:
+    removeBlankEvents: true
+    localTime: false
+    enableStatWatcher: true
+
+  k8sMetadata:
+    podLabels:
+      - app
+      - k8s-app
+      - release
+    watch: true
+    cache_ttl: 3600
+    propagate_namespace_labels: false
+
+  sourcetypePrefix: "kube"
+  rbac:
+    create: true
+    openshiftPrivilegedSccBinding: false
+
+  serviceAccount:
+    create: true
+    name:
+
+  podSecurityPolicy:
+    create: false
+    apparmor_security: true
+    apiGroup: policy
+
+  splunk:
+    hec:
+      host: prd-p-wicol.splunkcloud.com
+      port: 8088
+      token: 6befecc5-c98d-4f3f-b174-b31068250c5a
+      protocol:
+      endpoint:
+      fullUrl:
+      indexName: logs
+      insecureSSL: true
+      clientCert:
+      clientKey:
+      caFile:
+      consume_chunk_on_4xx_errors:
+      gzip_compression:
+
+    ingest_api:
+      serviceClientIdentifier:
+      serviceClientSecretKey:
+      tokenEndpoint:
+      ingestAuthHostf:
+      ingestAPIHost:
+      tenant:
+      eventsEndpoint:
+      debugIngestAPI:
+
+  secret:
+    create: true
+    name:
+
+  journalLogPath: /run/log/journal
+  charEncodingUtf8: false
+  logs:
+    docker:
+      from:
+        journald:
+          unit: docker.service
+      sourcetype: kube:docker
+    kubelet: &glog
+      from:
+        journald:
+          unit: kubelet.service
+      multiline:
+        firstline: /^\w[0-1]\d[0-3]\d/
+      sourcetype: kube:kubelet
+    etcd:
+      from:
+        pod: etcd-server
+        container: etcd-container
+    etcd-minikube:
+      from:
+        pod: etcd-minikube
+        container: etcd
+    etcd-events:
+      from:
+        pod: etcd-server-events
+        container: etcd-container
+    kube-apiserver:
+      <<: *glog
+      from:
+        pod: kube-apiserver
+      sourcetype: kube:kube-apiserver
+    kube-scheduler:
+      <<: *glog
+      from:
+        pod: kube-scheduler
+      sourcetype: kube:kube-scheduler
+    kube-controller-manager:
+      <<: *glog
+      from:
+        pod: kube-controller-manager
+      sourcetype: kube:kube-controller-manager
+    kube-proxy:
+      <<: *glog
+      from:
+        pod: kube-proxy
+      sourcetype: kube:kube-proxy
+    kubedns:
+      <<: *glog
+      from:
+        pod: kube-dns
+      sourcetype: kube:kubedns
+    dnsmasq:
+      <<: *glog
+      from:
+        pod: kube-dns
+      sourcetype: kube:dnsmasq
+    dns-sidecar:
+      <<: *glog
+      from:
+        pod: kube-dns
+        container: sidecar
+      sourcetype: kube:kubedns-sidecar
+    dns-controller:
+      <<: *glog
+      from:
+        pod: dns-controller
+      sourcetype: kube:dns-controller
+    kube-dns-autoscaler:
+      <<: *glog
+      from:
+        pod: kube-dns-autoscaler
+        container: autoscaler
+      sourcetype: kube:kube-dns-autoscaler
+    kube-audit:
+      from:
+        file:
+          path: /var/log/kube-apiserver-audit.log
+      timestampExtraction:
+        format: "%Y-%m-%dT%H:%M:%SZ"
+      sourcetype: kube:apiserver-audit
+
+  image:
+    registry: docker.io
+    name: splunk/fluentd-hec
+    tag: 1.3.1
+    pullPolicy: IfNotPresent
+    usePullSecret: false
+    pullSecretName:
+
+  environmentVar:
+
+  podAnnotations:
+
+  extraLabels:
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+
+  bufferChunkKeys:
+    - index
+  buffer:
+    "@type": memory
+    total_limit_size: 600m
+    chunk_limit_size: 20m
+    chunk_limit_records: 100000
+    flush_interval: 5s
+    flush_thread_count: 1
+    overflow_action: block
+    retry_max_times: 10
+    retry_type: periodic
+    retry_wait: 30
+
+  sendAllMetadata: false
+
+  tolerations:
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  affinity: {}
+
+  extraVolumes: []
+  extraVolumeMounts: []
+
+  priorityClassName:
+
+  kubernetes:
+    clusterName:
+    securityContext: false
+
+  customMetadata:
+
+  customMetadataAnnotations:
+  customFilters: {}
+  indexFields: []
+  rollingUpdate:
+
+splunk-kubernetes-metrics:
+  enabled: true
+  logLevel:
+  namespace:
+
+  rbac:
+    create: true
+
+  serviceAccount:
+    create: true
+    name:
+    usePullSecrets: false
+
+  podSecurityPolicy:
+    create: false
+    apparmor_security: true
+    apiGroup: policy
+
+  splunk:
+    hec:
+      host: prd-p-wicol.splunkcloud.com
+      port: 8088
+      token: 6befecc5-c98d-4f3f-b174-b31068250c5a
+      protocol:
+      endpoint:
+      fullUrl:
+      indexName: metrics
+      insecureSSL: true
+      clientCert:
+      clientKey:
+      caFile:
+      consume_chunk_on_4xx_errors:
+
+  secret:
+    create: true
+    name:
+
+  image:
+    registry: docker.io
+    name: splunk/k8s-metrics
+    tag: 1.2.1
+    pullPolicy: IfNotPresent
+    usePullSecret: false
+    pullsecretName:
+
+  imageAgg:
+    registry: docker.io
+    name: splunk/k8s-metrics-aggr
+    tag: 1.2.1
+    pullPolicy: IfNotPresent
+    usePullSecret: false
+    pullsecretName:
+
+  environmentVar:
+  environmentVarAgg:
+  podAnnotations:
+  podAnnotationsAgg:
+  extraLabels:
+  extraLabelsAgg:
+
+  resources:
+    fluent:
+      limits:
+        cpu: 200m
+        memory: 300Mi
+      requests:
+        cpu: 200m
+        memory: 300Mi
+  buffer:
+    "@type": memory
+    total_limit_size: 400m
+    chunk_limit_size: 10m
+    chunk_limit_records: 10000
+    flush_interval: 5s
+    flush_thread_count: 1
+    overflow_action: block
+    retry_max_times: 10
+    retry_type: periodic
+    retry_wait: 30
+
+  aggregatorBuffer:
+    "@type": memory
+    total_limit_size: 400m
+    chunk_limit_size: 10m
+    chunk_limit_records: 10000
+    flush_interval: 5s
+    flush_thread_count: 1
+    overflow_action: block
+    retry_max_times: 10
+    retry_type: periodic
+    retry_wait: 30
+
+  metricsInterval: 15s
+
+  nodeSelector:
+    kubernetes.io/os: linux
+
+  aggregatorNodeSelector:
+    kubernetes.io/os: linux
+
+  tolerations:
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+  aggregatorTolerations: {}
+  priorityClassName:
+  priorityClassNameAgg:
+  affinity: {}
+
+  kubernetes:
+    kubeletAddress:
+    kubeletPort:
+    kubeletPortAggregator:
+    useRestClientSSL: true
+    insecureSSL: true
+    caFile:
+    bearerTokenFile:
+    secretDir:
+    clusterName:
+
+  customFilters: {}
+  customFiltersAggr: {}
+  rollingUpdate:
