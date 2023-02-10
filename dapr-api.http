@@ -5,6 +5,8 @@ GET http://20.124.67.46:8001/health
 ###
 GET http://20.231.234.39:8000/health
 
+{"id":"something"}
+
 ###
 # POST checkout
 POST http://20.124.67.46:8001/checkout

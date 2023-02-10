@@ -19,6 +19,8 @@ using var client = new DaprClientBuilder().Build();
 var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 var logger = loggerFactory.CreateLogger("order-checkout");
 
+app.UseW3CLogging();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -40,6 +42,7 @@ app.MapPost("/checkout", async (HttpContext context, List<int> items) =>
     };
 
     var result = await client.InvokeMethodAsync<Order, Order>(ORDER_PROCESSOR_NAME, "orders", order);
+    logger.LogInformation($"Order checked out:{result.OrderId}");
     await context.Response.WriteAsJsonAsync(result);
 });
 

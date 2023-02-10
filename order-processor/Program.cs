@@ -18,6 +18,8 @@ using var client = new DaprClientBuilder().Build();
 var loggerFactory = app.Services.GetRequiredService<ILoggerFactory>();
 var logger = loggerFactory.CreateLogger("order-processor");
 
+app.UseW3CLogging();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -38,6 +40,7 @@ app.MapGet("/orders/{id}", async (HttpContext context, string id) =>
 app.MapPost("/orders", async (HttpContext context, Order order) =>
 {
     await client.SaveStateAsync(DAPR_STORE_NAME, order.OrderId, order);
+    logger.LogInformation($"Order processed:{order.OrderId}");
     await context.Response.WriteAsJsonAsync(order);
 });
 
